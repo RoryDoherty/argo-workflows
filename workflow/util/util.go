@@ -800,8 +800,19 @@ func resetConnectedParentGroupNodes(oldWF *wfv1.Workflow, newWF *wfv1.Workflow, 
 	return newWF, resetParentGroupNodes
 }
 
+func findAndResetParentNodesOfFailedStep(wf *wfv1.Workflow, node wfv1.NodeStatus, potentialParentNode wfv1.NodeStatus, deletedNodes map[string]bool, deletedPods map[string]bool, podsToDelete []string) (map[string]bool, map[string]bool, []string) {
+	if containsNode(getDescendantNodeIDs(wf, potentialParentNode), node.ID) {
+		// This flow contains a parent node that this node depends on, we should restart it
+		deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, potentialParentNode, deletedPods, podsToDelete)
+		for _, child := range potentialParentNode.Children {
+			deletedNodes, deletedPods, podsToDelete = findAndResetParentNodesOfFailedStep(wf, node, wf.Status.Nodes[child], deletedNodes, deletedPods, podsToDelete)
+		}
+	}
+	return deletedNodes, deletedPods, podsToDelete
+}
+
 // FormulateRetryWorkflow formulates a previous workflow to be retried, deleting all failed steps as well as the onExit node (and children)
-func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSuccessful bool, nodeFieldSelector string, parameters []string) (*wfv1.Workflow, []string, error) {
+func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSuccessful bool, restartDependencies bool, nodeFieldSelector string, parameters []string) (*wfv1.Workflow, []string, error) {
 	switch wf.Status.Phase {
 	case wfv1.WorkflowFailed, wfv1.WorkflowError:
 	default:
@@ -922,6 +933,17 @@ func FormulateRetryWorkflow(ctx context.Context, wf *wfv1.Workflow, restartSucce
 				deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, node, deletedPods, podsToDelete)
 				log.Debugf("Deleted pod node: %s", node.Name)
 				deletedNodes[node.ID] = true
+			}
+			if restartDependencies && node.BoundaryID != "" {
+				origNode := wf.Status.Nodes[node.BoundaryID]
+				for _, potentialParent := range origNode.Children {
+					if containsNode(getDescendantNodeIDs(wf, wf.Status.Nodes[potentialParent]), node.ID) {
+						// This flow contains a parent node that this node depends on, we should restart it and the path to the failed node
+						deletedPods, podsToDelete = deletePodNodeDuringRetryWorkflow(wf, wf.Status.Nodes[potentialParent], deletedPods, podsToDelete)
+						deletedNodes[wf.Status.Nodes[potentialParent].ID] = true
+						deletedNodes, deletedPods, podsToDelete = findAndResetParentNodesOfFailedStep(wf, node, wf.Status.Nodes[potentialParent], deletedNodes, deletedPods, podsToDelete)
+					}
+				}
 			}
 			// do not add this status to the node. pretend as if this node never existed.
 		default:

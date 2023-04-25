@@ -34,8 +34,9 @@ message RetryArchivedWorkflowRequest {
   string name = 2;
   string namespace = 3;
   bool restartSuccessful = 4;
-  string nodeFieldSelector = 5;
-  repeated string parameters = 6;
+  bool restartDependencies = 5;
+  string nodeFieldSelector = 6;
+  repeated string parameters = 7;
 }
 
 message ResubmitArchivedWorkflowRequest {

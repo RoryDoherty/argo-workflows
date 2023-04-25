@@ -3,6 +3,7 @@ import {catchError, filter, map, mergeMap, switchMap} from 'rxjs/operators';
 import * as models from '../../../models';
 import {Event, LogEntry, NodeStatus, Workflow, WorkflowList, WorkflowPhase} from '../../../models';
 import {SubmitOpts} from '../../../models/submit-opts';
+import {RetryOpts} from '../../../models/retry-opts';
 import {uiUrl} from '../base';
 import {Pagination} from '../pagination';
 import {Utils} from '../utils';
@@ -113,8 +114,10 @@ export const WorkflowsService = {
         return requests.loadEventSource(url).pipe(map(data => data && (JSON.parse(data).result as models.kubernetes.WatchEvent<Workflow>)));
     },
 
-    retry(name: string, namespace: string) {
-        return requests.put(`api/v1/workflows/${namespace}/${name}/retry`).then(res => res.body as Workflow);
+    retry(name: string, namespace: string, retryOptions?: RetryOpts) {
+        return requests.put(`api/v1/workflows/${namespace}/${name}/retry`)
+        .send({retryOptions})
+        .then(res => res.body as Workflow);
     },
 
     resubmit(name: string, namespace: string) {

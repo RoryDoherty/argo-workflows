@@ -5984,6 +5984,9 @@
           },
           "type": "array"
         },
+        "restartDependencies": {
+          "type": "boolean"
+        },
         "restartSuccessful": {
           "type": "boolean"
         },
@@ -7231,6 +7234,9 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "restartDependencies": {
+          "type": "boolean"
         },
         "restartSuccessful": {
           "type": "boolean"

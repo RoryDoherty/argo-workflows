@@ -9915,6 +9915,9 @@
             "type": "string"
           }
         },
+        "restartDependencies": {
+          "type": "boolean"
+        },
         "restartSuccessful": {
           "type": "boolean"
         },
@@ -11144,6 +11147,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "restartDependencies": {
+          "type": "boolean"
         },
         "restartSuccessful": {
           "type": "boolean"

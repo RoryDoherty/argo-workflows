@@ -5515,7 +5515,7 @@ status:
       name: my-wf
       phase: Failed
 `)
-	wf, _, err := util.FormulateRetryWorkflow(context.Background(), wf, false, "", []string{"message=modified"})
+	wf, _, err := util.FormulateRetryWorkflow(context.Background(), wf, false, false, "", []string{"message=modified"})
 	if assert.NoError(t, err) {
 		cancel, controller := newController(wf)
 		defer cancel()

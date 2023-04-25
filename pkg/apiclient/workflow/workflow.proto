@@ -46,8 +46,9 @@ message WorkflowRetryRequest {
   string name = 1;
   string namespace = 2;
   bool restartSuccessful = 3;
-  string nodeFieldSelector = 4;
-  repeated string parameters = 5;
+  bool restartDependencies = 4;
+  string nodeFieldSelector = 5;
+  repeated string parameters = 6;
 }
 message WorkflowResumeRequest {
   string name = 1;

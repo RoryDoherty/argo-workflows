@@ -19,11 +19,12 @@ import (
 )
 
 type retryOps struct {
-	nodeFieldSelector string // --node-field-selector
-	restartSuccessful bool   // --restart-successful
-	namespace         string // --namespace
-	labelSelector     string // --selector
-	fieldSelector     string // --field-selector
+	nodeFieldSelector   string // --node-field-selector
+	restartSuccessful   bool   // --restart-successful
+	namespace           string // --namespace
+	labelSelector       string // --selector
+	fieldSelector       string // --field-selector
+	restartDependencies bool   // --restart-dependencies
 }
 
 // hasSelector returns true if the CLI arguments selects multiple workflows
