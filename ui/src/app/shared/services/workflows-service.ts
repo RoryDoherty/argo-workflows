@@ -114,9 +114,9 @@ export const WorkflowsService = {
         return requests.loadEventSource(url).pipe(map(data => data && (JSON.parse(data).result as models.kubernetes.WatchEvent<Workflow>)));
     },
 
-    retry(name: string, namespace: string, retryOptions?: RetryOpts) {
+    retry(name: string, namespace: string, body?: RetryOpts) {
         return requests.put(`api/v1/workflows/${namespace}/${name}/retry`)
-        .send({retryOptions})
+        .send(body)
         .then(res => res.body as Workflow);
     },
 

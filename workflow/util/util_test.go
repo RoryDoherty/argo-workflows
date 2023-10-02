@@ -2200,7 +2200,7 @@ func TestSimpleDagRouteRetryDependencies(t *testing.T) {
 	assert.Equal(t, wfv1.NodePhase("Succeeded"), wf.Status.Nodes["demo-9bqnp-1027269534"].Phase) // step e
 	assert.Equal(t, wfv1.NodePhase("Succeeded"), wf.Status.Nodes["demo-9bqnp-1044047153"].Phase) // step d
 	assert.Equal(t, wfv1.NodePhase("Succeeded"), wf.Status.Nodes["demo-9bqnp-1044047153"].Phase) // step b
-	assert.Equal(t, 3, len(podsToDelete))
+	assert.Equal(t, 2, len(podsToDelete))
 	t.Log(podsToDelete)
 
 }

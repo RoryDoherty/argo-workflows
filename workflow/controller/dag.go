@@ -206,6 +206,7 @@ func (d *dagContext) assessDAGPhase(targetTasks []string, nodes wfv1.Nodes) wfv1
 }
 
 func (woc *wfOperationCtx) executeDAG(ctx context.Context, nodeName string, tmplCtx *templateresolution.Context, templateScope string, tmpl *wfv1.Template, orgTmpl wfv1.TemplateReferenceHolder, opts *executeTemplateOpts) (*wfv1.NodeStatus, error) {
+	log.Debug("Rory: At start of executeDAG")
 	node := woc.wf.GetNodeByName(nodeName)
 	if node == nil {
 		node = woc.initializeExecutableNode(nodeName, wfv1.NodeTypeDAG, templateScope, tmpl, orgTmpl, opts.boundaryID, wfv1.NodeRunning)
@@ -240,7 +241,9 @@ func (woc *wfOperationCtx) executeDAG(ctx context.Context, nodeName string, tmpl
 	}
 
 	// kick off execution of each target task asynchronously
+	log.Debug("Rory: Starting to kick off each task")
 	for _, taskName := range targetTasks {
+		log.Debug("Rory: Taskname " + taskName)
 		woc.executeDAGTask(ctx, dagCtx, taskName)
 
 		// It is possible that target tasks are not reconsidered (i.e. executeDAGTask is not called on them) once they are
@@ -250,6 +253,7 @@ func (woc *wfOperationCtx) executeDAG(ctx context.Context, nodeName string, tmpl
 
 		if taskNode != nil {
 			task := dagCtx.GetTask(taskName)
+			log.Debug("Rory: before buildLocalScopeFromTask")
 			scope, err := woc.buildLocalScopeFromTask(dagCtx, task)
 			if err != nil {
 				woc.markNodeError(node.Name, err)
@@ -578,10 +582,12 @@ func (woc *wfOperationCtx) executeDAGTask(ctx context.Context, dagCtx *dagContex
 
 func (woc *wfOperationCtx) buildLocalScopeFromTask(dagCtx *dagContext, task *wfv1.DAGTask) (*wfScope, error) {
 	// build up the scope
+	log.Debug("Rory: Start of buildLocalScopeFromTask")
 	scope := createScope(dagCtx.tmpl)
 	woc.addOutputsToLocalScope("workflow", woc.wf.Status.Outputs, scope)
 
 	ancestors := common.GetTaskAncestry(dagCtx, task.Name)
+	log.Debug("Rory: task name " + task.Name + " ancestors: " + strings.Join(ancestors, " "))
 	for _, ancestor := range ancestors {
 		ancestorNode := dagCtx.getTaskNode(ancestor)
 		if ancestorNode == nil {

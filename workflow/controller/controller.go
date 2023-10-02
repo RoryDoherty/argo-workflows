@@ -249,6 +249,8 @@ func (wfc *WorkflowController) Run(ctx context.Context, wfWorkers, workflowTTLWo
 	log.WithField("version", argo.GetVersion().Version).
 		WithField("defaultRequeueTime", GetRequeueTime()).
 		Info("Starting Workflow Controller")
+	log.SetLevel(log.DebugLevel)
+	log.Debug("Debug logging Enabled")
 	log.WithField("workflow", wfWorkers).
 		WithField("workflowTtl", workflowTTLWorkers).
 		WithField("podCleanup", podCleanupWorkers).
